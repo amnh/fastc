@@ -1,0 +1,152 @@
+\documentclass[12pt]{article}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{lscape}
+\usepackage{flafter}  % Don't place floats before their definition
+\usepackage{bm}  % Define \bm{} to use bold math fonts
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+%\usepackage{MnSymbol}
+\usepackage{mathabx}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{syntax, etoolbox}
+\usepackage{tipa}
+\usepackage{array, multirow}
+\usepackage{fullpage}
+\usepackage{textcomp}
+
+\bibliographystyle{cbe}
+%\citestyle{aa}
+
+\begin{document}
+
+%\title{Words as Sequences in Uto-Aztecan Language Evolution and Biogeography}
+\title{FASTC: A file format for multi-character sequence data}
+\author{Ward C. Wheeler and Alex Washburn \\
+		Division of  Invertebrate Zoology\\
+		American Museum of Natural History\\
+		200 Central Park West\\
+		New York, NY 10024-5192\\
+		USA\\
+		wheeler@amnh.org\\
+		212-769-5754}
+
+\maketitle
+\begin{center}
+Running Title: FASTC file format
+\end{center}
+\newpage
+\doublespacing
+
+\section{Abstract}
+Here, we define a sequence file format that allows for multi-character elements (FASTC).  The format is derived from the FASTA format of \cite{LipmanandPearson1985} and the custom alphabet format of POY4/5 \citep{POY4,Wheeleretal2015}.  The format is more general than either of these formats and can represent a broad variety of sequence-type data.
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction and Motivation}
+The FASTA (or Pearson) sequence format was first articulated as a component of sequence database searching tools
+\citep{LipmanandPearson1985}.  This format is nearly universally recognized and used for sequence data input 
+by a large variety of sequence analysis software packages.
+
+The format is admirably simple (defined in FASTA program documentation, see \url{www.cse.unsw.edu.au/~binftools/birch/birchhomedir/doc/fasta/fasta20.doc}) with 
+only two control characters (`$>$' and `;').  The semicolon (`;') denotes a comment (to carriage return) and `$>$' labeling a sequence.  
+The sequence label line begins with `$>$' and continues until white space or carriage return is encountered.  Sequences consist of single-character
+IUPAC protein and nucleic acids codes.  All other symbols are ignored (such as numbers and white space).  Line length is limited to 120 characters.
+
+An example, valid file could look like this:\\
+\texttt{;This is an example file}\\
+\texttt{$>$First\_DNA sequence}\\
+\texttt{ACGTTT @GGA;This is a comment}\\
+\texttt{$>$Second\_DNA sequence}\\
+\texttt{1 GT-A 4 TTCA }\\
+This would result in the input of two sequences: First\_DNA  ACGTTTGGA and Second\_DNA GTATTCA.
+
+POY4 \citep {POY4} and POY5 \citep {POY5, Wheeleretal2015} extended the legal character symbol set to include `-' to represent alignment gaps (an IUPAC symbol for nucleotides but not protein sequences), `X' to represent any nucleotide (in addition to `N' for nucleotides), and `?' to represent `X' or `-' (unknown element or gap).  
+
+\subsection{Multi-character alphabets}
+Situations arise where multi-character sequence elements are required or at least convenient.  These can include gene synteny, developmental, and comparative linguistic data (explained further in \citealp{SchulmeisterandWheeler2004,Wheeler2007, Wheeler2012, WheelerandWhiteley2015}).  POY4 and POY5 contained the `custom alphabet' sequence type from which the FASTC format described here is derived.
+
+The custoM alphabet file format allows for multi-character element representations (e.g. alpha, beta, gamma), but these must be prefix-free.  This allows sequence parsing to proceed more easily, but has the limitation that is requires a prefix-free alphabet and not all are.  Furthermore, it
+can lead to less that easily human-legible data files such as:\\
+\texttt{$>$First\_sequence}\\
+\texttt{alphabetagammadelta}\\
+\texttt{$>$Second\_sequence}\\
+\texttt{betagammaalphadelta}\\
+The custom alphabet elements can also be preceded by a tilda (`$\sim$') denoting reverse orientation (useful for gene synteny data).
+
+\section{FASTC}
+The FASTC format grows out of the FASTA and custom alphabet formats by adding a two aspects: (1) mandatory white space between elements and (2) the '\$' used in sequence identifiers mark the remainder 
+of the line as a comment.
+
+\pagebreak
+
+\subsection{Grammar specification}
+
+\AtBeginEnvironment{grammar}{\small}
+\setlength{\grammarparsep}{12pt plus 1pt minus 1pt} % increase separation between rules
+\setlength{\grammarindent}{10em} % increase separation between LHS/RHS
+
+\begin{grammar}
+
+  <FILE>         ::=  <WHITESPACE> $\,\,\Big($ `>' <IDENTIFIER> <ID_END> <SEQUENCE> $\Big)^{\Asterisk}$
+
+  <IDENTIFIER>   ::=  <SPACE_PAD> $\Big($ <VALID_CHAR> $\Big)^{+}$ <SPACE_PAD>
+
+  <ID_END>       ::=  `\\n' <WHITESPACE>
+                 \alt <COMMENT> <WHITESPACE>
+
+  <COMMENT>      ::=  `;' $\,\,\Big($ <INLINE_CHAR> $\Big)^{\Asterisk}$ `\\n'
+
+  <SEQUENCE>     ::=  $\Big($ <ELEMENT> <WHITESPACE> $\Big)^{+}$
+  
+  <ELEMENT>      ::=  <SYMBOL>
+                 \alt `[' <SPACE_PAD> <SYMBOL> <SYMBOL_LIST> <SPACE_PAD> `]'
+ 
+  <SYMBOL>       ::=  $\Big($ <VALID_CHAR> $\Big)^{+}$
+                 
+  <SYMBOL_LIST>  ::=  $\Big($ <SPACE_SEP> <SYMBOL> $\Big)^{\Asterisk}$
+  
+  <WHITESPACE>   ::=  $\Big($ <SPACING> $\Big)^{\Asterisk}$
+
+  <SPACING>      ::=  \verb![\s]!$^{\Asterisk}$
+                 \alt <COMMENT>
+
+  <SPACE_PAD>    ::=  $\Big($ <SPACE_CHAR> $\Big)^{\Asterisk}$
+
+  <SPACE_SEP>    ::=  $\Big($ <SPACE_CHAR> $\Big)^{+}$
+
+  <SPACE_CHAR>   ::=  \verb![^\n\S]!
+
+  <INLINE_CHAR>  ::=  \verb![^\n]!
+
+  <VALID_CHAR>   ::=  \verb![^;>\[\]\s]!
+
+
+  
+\end{grammar}
+
+It is worth noting that parentheses, '(' and '), \textit{are allowed} in an identifier but may cause conflict with with E/Newick tree file format \citep{Cardonaetal2008} containing the same identifier that has not been properly quoted. \\
+
+Multiple identifier lines without sequence data:\\
+\texttt{	
+>foo\\
+>bar\\
+}
+are not permitted.
+
+\subsection{Example files}
+
+\section{Acknowledgements}
+\newpage
+\bibliography{../big-refs-3}
+\end{document}
+
+
+
+
+\grid
