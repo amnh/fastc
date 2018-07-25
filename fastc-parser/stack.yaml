@@ -1,0 +1,16 @@
+compiler: ghc-8.4.3
+
+compiler-check: match-exact
+
+flags: {}
+
+ghc-options:
+  "$everything": -j -fdiagnostics-color=always
+  "$locals": -fhide-source-paths
+
+local-bin-path: bin
+
+packages:
+  - '.'
+
+resolver: lts-12.2
