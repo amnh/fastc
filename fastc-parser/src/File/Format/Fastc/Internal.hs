@@ -14,27 +14,22 @@
 
 {-# LANGUAGE FlexibleContexts, ScopedTypeVariables, TypeFamilies #-}
 
-module File.Format.Fastc.Internal where
+module File.Format.Fastc.Internal
+  ( CharacterSequence
+  , Identifier
+  , Symbol
+  , (<:>)
+  , endOfLine
+  , identifierLine
+  , inlineSpace
+  ) where
 
-import           Data.CaseInsensitive
-import           Data.Functor                      (($>))
-import           Data.Maybe                        (catMaybes)
-import           Data.Proxy
-import qualified Data.Set                   as S
-import qualified Text.Megaparsec.Char.Lexer as LEX
-
-
-import Data.Char              (isSpace)
-import Data.List.NonEmpty
-import Data.Map               (Map)
-import Data.Vector            (Vector)
-import Text.Megaparsec
-import Text.Megaparsec.Char
-
-
--- |
--- Naive representation of a collection taxa sequences
-type TaxonSequenceMap  = Map Identifier CharacterSequence
+import           Data.Char            (isSpace)
+import           Data.Functor         (($>))
+import           Data.List.NonEmpty
+import           Data.Vector          (Vector)
+import           Text.Megaparsec
+import           Text.Megaparsec.Char
 
 
 -- |
@@ -104,56 +99,6 @@ commentBody  = do
 (<:>)  a b = (:)  <$> a <*> b
 
 
-{-
--- |
--- Concatenate the result of two list producing combinators.
-(<++>) :: (Applicative f, Semigroup a) => f a -> f a -> f a
-(<++>) a b = (<>) <$> a <*> b
--}
-
-
--- |
--- Parse a string-like chunk.
-string'' :: forall e s m. (FoldCase (Tokens s), MonadParsec e s m, Token s ~ Char) => String -> m (Tokens s)
-string'' = string' . tokensToChunk (Proxy :: Proxy s)
-
-
--- |
--- @anythingTill end@ consumes zero or more characters until @end@ is matched,
--- leaving @end@ in the stream.
-anythingTill :: MonadParsec e s m => m a -> m [Token s]
-anythingTill c = do 
-    ahead <- optional . try $ lookAhead c
-    case ahead of
-      Just _  -> pure []
-      Nothing -> somethingTill c
-
-
--- |
--- @somethingTill end@ consumes one or more characters until @end@ is matched,
--- leaving @end@ in the stream.
-somethingTill :: MonadParsec e s m => m a -> m [Token s]
-somethingTill c = do
-    _ <- notFollowedBy c
-    anyToken <:> anythingTill c
-
-
--- |
--- Match any token. Fails only when the stream is empty.
-anyToken :: MonadParsec e s m => m (Token s)
-anyToken = token Right Nothing
-
-
--- |
--- Flexibly parses a 'Double' value represented in a variety of forms.
-double :: (MonadParsec e s m, Token s ~ Char) => m Double
-double = try real <|> fromIntegral <$> int
-  where
-     int  :: (MonadParsec e s m, Token s ~ Char) => m Integer
-     int  = LEX.signed space LEX.decimal
-     real = LEX.signed space LEX.float
-
-
 -- |
 -- Custom 'eol' combinator to account for /very/ old Mac file formats ending
 -- lines in a single @\'\\r\'@.
@@ -164,12 +109,6 @@ endOfLine = choice (try <$> [ nl, cr *> nl, cr ]) $> newLineChar
     carriageChar = enumCoerce '\r'
     nl = tokenMatch newLineChar  $> ()
     cr = tokenMatch carriageChar $> ()
-
-
--- |
--- Accepts zero or more Failure messages.
-fails :: MonadParsec e s m => [String] -> m a
-fails = failure Nothing . S.fromList . fmap Label . catMaybes . fmap nonEmpty
 
 
 -- |

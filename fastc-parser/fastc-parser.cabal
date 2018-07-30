@@ -61,18 +61,8 @@ library
   import:           ghc-settings
 
   build-depends:    base               >=4.10
-                  , case-insensitive
-                  -- >=0.5.8 Required for Data.Map.restrictKeys
-                  , containers         >=0.5.8
-                  , dlist
-                  , graphviz
-                  , keys
                   , megaparsec         >=6.4.0
                   , parser-combinators >=0.2.0
-                  , safe
-                  , scientific
-                  , semigroupoids
-                  , text
                   , vector
 
   hs-source-dirs:   src
@@ -81,6 +71,17 @@ library
 
   other-modules:    File.Format.Fastc.Internal
                     File.Format.Fastc.Parser
+
+
+executable fastc
+
+  import:           ghc-settings
+
+  main-is:          Main.hs
+
+  build-depends:    base               >=4.10
+                  , fastc-parser
+                  , megaparsec         >=6.4.0
 
 
 --Test-Suite unit-tests

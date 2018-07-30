@@ -21,8 +21,6 @@ module File.Format.Fastc.Parser
   , Identifier
   , Symbol
   , fastcStreamParser
-  , fastcSymbolSequence
-  , fastcTaxonSequenceDefinition
   ) where
 
 
