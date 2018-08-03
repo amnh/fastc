@@ -69,8 +69,7 @@ library
 
   exposed-modules:  File.Format.Fastc
 
-  other-modules:    File.Format.Fastc.Internal
-                    File.Format.Fastc.Parser
+  other-modules:    File.Format.Fastc.Parser
 
 
 executable fastc

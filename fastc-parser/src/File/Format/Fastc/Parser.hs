@@ -12,7 +12,7 @@
 --
 -----------------------------------------------------------------------------
 
-{-# LANGUAGE FlexibleContexts, TypeFamilies #-}
+{-# LANGUAGE ApplicativeDo, FlexibleContexts, TypeFamilies #-}
 
 module File.Format.Fastc.Parser 
   ( CharacterSequence
@@ -24,13 +24,31 @@ module File.Format.Fastc.Parser
   ) where
 
 
-import           Data.Char                 (isSpace)
-import           Data.List.NonEmpty        (NonEmpty)
-import qualified Data.List.NonEmpty as NE
-import qualified Data.Vector        as V
-import           File.Format.Fastc.Internal
+import           Data.Char                   (isSpace)
+import           Data.Foldable
+import           Data.Functor                (void)
+import           Data.List.NonEmpty          (NonEmpty(..), some1)
+import           Data.Vector                 (Vector)
+import qualified Data.Vector          as V
 import           Text.Megaparsec
-import           Text.Megaparsec.Char
+import           Text.Megaparsec.Char hiding (spaceChar)
+import           Prelude              hiding (sequence)
+
+
+-- |
+-- Unique identifier for a taxa 
+type Identifier        = String
+
+
+-- |
+-- Component of a phylogenetic character
+type Symbol            = String
+
+
+-- |
+-- Indexed sequences of 'Symbol's with possible abiguity at an index
+type CharacterSequence = Vector (NonEmpty Symbol)
+
 
 
 -- |
@@ -44,58 +62,136 @@ data FastcSequence
    = FastcSequence
    { fastcLabel   :: Identifier
    , fastcSymbols :: CharacterSequence
-   } deriving (Eq,Show)
+   } deriving (Eq)
+
+
+instance Show FastcSequence where
+
+    show (FastcSequence i s) = unlines
+      [ i <> ":"
+      , unwords $ (\x -> "["<>x<>"]") . unwords . toList <$> toList s
+      ]
 
 
 -- |
 -- Consumes a stream of 'Char's and parses the stream into a 'FastcParseResult'
 fastcStreamParser :: (MonadParsec e s m, Token s ~ Char) => m FastcParseResult
-fastcStreamParser = NE.fromList <$> some fastcTaxonSequenceDefinition <* eof
+fastcStreamParser = file <* eof
 
 
 -- |
--- Parses a FASTC 'Identifier' and the associated sequence, discarding any
--- comments
-fastcTaxonSequenceDefinition :: (MonadParsec e s m, Token s ~ Char) => m FastcSequence
-fastcTaxonSequenceDefinition = do
-    name <- identifierLine
-    seq' <- try fastcSymbolSequence <?> ("Unable to read symbol sequence for label: '" <> name <> "'")
-    _    <- space
-    pure $ FastcSequence name seq'
-
-
--- |
--- Parses a sequence of 'Symbol's represneted by a 'CharacterSequence'.
--- Symbols can be multi-character and are assumed to be seperated by whitespace.
-fastcSymbolSequence :: (MonadParsec e s m, Token s ~ Char) => m CharacterSequence
-fastcSymbolSequence = V.fromList <$> (space *> fullSequence)
+-- The full FASTC file grammar
+file :: (MonadParsec e s m, Token s ~ Char) => m (NonEmpty FastcSequence)
+file = whitespace *> some1 identifierLine
   where
-    fullSequence = concat <$> some (inlineSpace *> sequenceLine)
-    sequenceLine = (symbolGroup <* inlineSpace) `manyTill` endOfLine
+    identifierLine = do
+        _ <- char '>'
+        i <- identifier
+        _ <- idEnd
+        s <- sequence
+        pure $ FastcSequence i s
 
 
 -- |
--- Parses either an ambiguity group of 'Symbol's or a single, unambiguous
--- 'Symbol'.
-symbolGroup :: (MonadParsec e s m, Token s ~ Char) => m (NonEmpty String)
-symbolGroup = ambiguityGroup <|> (pure <$> validSymbol)
+-- 'Identifier' of a sequence
+identifier :: (MonadParsec e s m, Token s ~ Char) => m Identifier
+identifier = spacePad *> some validChar <* spacePad
 
 
 -- |
--- Parses an ambiguity group of symbols. Ambiguity groups are delimited by the
--- '\'|\'' character.
-ambiguityGroup :: (MonadParsec e s m, Token s ~ Char) => m (NonEmpty String)
-ambiguityGroup = NE.fromList <$> (validSymbol `sepBy1` (char '|' <* inlineSpace))
+-- The way in which an identifier line can be terminated
+idEnd :: (MonadParsec e s m, Token s ~ Char) => m ()
+idEnd = char '\n' *> whitespace <|> comment *> whitespace
 
 
 -- |
--- Parses a 'Symbol' token ending with whitespace and excluding the forbidden
--- characters: '[\'>\',\'|\']'.
-validSymbol :: (MonadParsec e s m, Token s ~ Char) => m String
-validSymbol = (validStartChar <:> many validBodyChar) <* inlineSpace
+-- An inline comment of the FASTC file
+comment :: (MonadParsec e s m, Token s ~ Char) => m String
+comment = do
+    _ <- char ';'
+    c <- some inlineChar
+    _ <- char '\n'
+    pure c
+
+
+-- |
+-- A sequence of symbols
+sequence :: (MonadParsec e s m, Token s ~ Char) => m CharacterSequence
+sequence = V.fromList <$> some (element <* whitespace)
+
+
+-- |
+-- An element of the symbol sequence
+element :: (MonadParsec e s m, Token s ~ Char) => m (NonEmpty String)
+element = (pure <$> symbol) <|> ambiguitygroup
   where
-    validStartChar = satisfy $ \x -> x /= '>' -- need to be able to match new taxa lines
-                                  && x /= '|' -- need to be able to start an ambiguity list 
-                                  && (not . isSpace) x
-    validBodyChar  = satisfy $ \x -> x /= '|' -- need to be able to end an ambiguity sequence
-                                  && (not . isSpace) x
+    ambiguitygroup = do
+        _  <- char '['
+        _  <- spacePad
+        x  <- symbol
+        xs <- symbolList
+        _  <- spacePad
+        _  <- char ']'
+        pure (x:|xs)
+
+
+-- |
+-- A symbol of the alphabet contained in a symbol sequence
+symbol :: (MonadParsec e s m, Token s ~ Char) => m String
+symbol = some validChar
+
+
+-- |
+-- A list of symbols, possibly empty
+symbolList :: (MonadParsec e s m, Token s ~ Char) => m [String]
+symbolList = many (spaceSep *> symbol)
+
+  
+-- |
+-- Defines whitespace to be consumed and discarded
+whitespace :: (MonadParsec e s m, Token s ~ Char) => m ()
+whitespace = void (many spacing)
+
+-- |
+-- Defines a fragment of whitespace to be consumed and discarded
+spacing :: (MonadParsec e s m, Token s ~ Char) => m ()
+spacing = (void . some1 . satisfy) isSpace <|> void comment
+
+
+-- |
+-- Defines if a 'Char' is a space but not a newline
+spacePad :: (MonadParsec e s m, Token s ~ Char) => m String
+spacePad = many spaceChar
+
+
+-- |
+-- Defines if a 'Char' is a space but not a newline
+spaceSep :: (MonadParsec e s m, Token s ~ Char) => m (NonEmpty Char)
+spaceSep = some1 spaceChar
+
+
+-- |
+-- Defines if a 'Char' is a space but not a newline
+spaceChar :: (MonadParsec e s m, Token s ~ Char) => m Char
+spaceChar = satisfy (\x -> isSpace x && x /= '\n')
+
+
+-- |
+-- Defines if a 'Char' is not a new line character
+inlineChar :: (MonadParsec e s m, Token s ~ Char) => m Char
+inlineChar = satisfy (/= '\n')
+
+
+-- |
+-- Defines if a 'Char' is valid
+validChar :: (MonadParsec e s m, Token s ~ Char) => m Char
+validChar = satisfy charCriterion
+  where
+    charCriterion :: Char -> Bool
+    charCriterion c = and $
+        [ not . isSpace
+        , (/= ';')
+        , (/= '>')
+        , (/= '[')
+        , (/= ']')
+        ] <*> [c]
