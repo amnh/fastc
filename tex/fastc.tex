@@ -113,18 +113,18 @@ of the line as a comment.
   
   <WHITESPACE>   ::=  $\Big($ <SPACING> $\Big)^{\Asterisk}$
 
-  <SPACING>      ::=  \verb![\s]!$^{+}$
+  <SPACING>      ::=  \verb![\s]!$^{+}$  $\,\quad\quad\quad \lhd \,\, \textbf{one or more spaces}$
                  \alt <COMMENT>
 
   <SPACE_PAD>    ::=  $\Big($ <SPACE_CHAR> $\Big)^{\Asterisk}$
 
   <SPACE_SEP>    ::=  $\Big($ <SPACE_CHAR> $\Big)^{+}$
 
-  <SPACE_CHAR>   ::=  \verb![^\n\S]!
+  <SPACE_CHAR>   ::=  \verb![^\n\S]!     $\,\quad\quad      \lhd \,\, \textbf{not a new-line or a non-space}$
 
-  <INLINE_CHAR>  ::=  \verb![^\n]!
+  <INLINE_CHAR>  ::=  \verb![^\n]!       $\,\quad\quad\quad \lhd \,\, \textbf{not a new-line}$
 
-  <VALID_CHAR>   ::=  \verb![^;>\[\]\s]!
+  <VALID_CHAR>   ::=  \verb![^;>\[\]\s]! $                  \lhd \,\, \textbf{not}$ `;', `>', `[', `]', $\textbf{or a space}$
 
 
   
