@@ -54,8 +54,8 @@ The FASTA (or Pearson) sequence format was first articulated as a component of s
 by a large variety of sequence analysis software packages.
 
 The format is admirably simple (defined in FASTA program documentation, see \url{www.cse.unsw.edu.au/~binftools/birch/birchhomedir/doc/fasta/fasta20.doc}) with 
-only two control characters (`$>$' and `;').  The semicolon (`;') denotes a comment (to carriage return) and `$>$' labeling a sequence.  
-The sequence label line begins with `$>$' and continues until white space or carriage return is encountered.  Sequences consist of single-character
+only two control characters (`$>$' and `;').  The semicolon (`;') denotes a comment (to end of line) and `$>$' labeling a sequence.  
+The sequence label line begins with `$>$' and continues until white space or end of line is encountered.  Sequences consist of single-character
 IUPAC protein and nucleic acids codes.  All other symbols are ignored (such as numbers and white space).  Line length is limited to 120 characters.
 
 An example, valid file could look like this:\\
@@ -69,7 +69,7 @@ This would result in the input of two sequences: First\_DNA  ACGTTTGGA and Secon
 POY4 \citep {POY4} and POY5 \citep {POY5, Wheeleretal2015} extended the legal character symbol set to include `-' to represent alignment gaps (an IUPAC symbol for nucleotides but not protein sequences), `X' to represent any nucleotide (in addition to `N' for nucleotides), and `?' to represent `X' or `-' (unknown element or gap).  
 
 \subsection{Multi-character alphabets}
-Situations arise where multi-character sequence elements are required or at least convenient.  These can include gene synteny, developmental, and comparative linguistic data (explained further in \citealp{SchulmeisterandWheeler2004,Wheeler2007, Wheeler2012, WheelerandWhiteley2015}).  POY4 and POY5 containe the `custom alphabet' sequence type from which the FASTC format described here is derived.
+Situations arise where multi-character sequence elements are required or at least convenient.  These can include gene synteny, developmental, and comparative linguistic data (explained further in \citealp{SchulmeisterandWheeler2004,Wheeler2007, Wheeler2012, WheelerandWhiteley2015}).  POY4 and POY5 contain the `custom alphabet' sequence type from which the FASTC format described here is derived.
 
 The custom alphabet file format allows for multi-character element representations (e.g. alpha, beta, gamma), but these must be prefix-free.  This allows sequence parsing to proceed more easily, but has the limitation that it requires a prefix-free alphabet and not all are.  Furthermore, it
 can lead to less that easily human-legible data files such as:\\
@@ -85,7 +85,7 @@ sequence element specification.
 \pagebreak
 
 \subsection{Grammar specification}
-The file grammar is specified below.
+The file grammar is specified as follows:
 
 \AtBeginEnvironment{grammar}{\small}
 \setlength{\grammarparsep}{12pt plus 1pt minus 1pt} % increase separation between rules
@@ -132,12 +132,12 @@ The file grammar is specified below.
 
 It is worth noting that parentheses, '(' and '), \textit{are allowed} in an identifier but may cause conflict with with E/Newick tree file format \citep{Cardonaetal2008} containing the same identifier that has not been properly quoted. \\
 
-Multiple identifier lines without sequence data:\\
+Multiple identifier lines without sequence data  are not permitted:\\
 \texttt{	
 >foo\\
 >bar\\
 }
-are not permitted.
+
 
 \subsection{Example files}
 Traditional sequence files can be represented in fastc with the inclusion of separating spaces (from \citealp{Wheeler1998c}).
