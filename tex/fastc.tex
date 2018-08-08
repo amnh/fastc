@@ -69,9 +69,9 @@ This would result in the input of two sequences: First\_DNA  ACGTTTGGA and Secon
 POY4 \citep {POY4} and POY5 \citep {POY5, Wheeleretal2015} extended the legal character symbol set to include `-' to represent alignment gaps (an IUPAC symbol for nucleotides but not protein sequences), `X' to represent any nucleotide (in addition to `N' for nucleotides), and `?' to represent `X' or `-' (unknown element or gap).  
 
 \subsection{Multi-character alphabets}
-Situations arise where multi-character sequence elements are required or at least convenient.  These can include gene synteny, developmental, and comparative linguistic data (explained further in \citealp{SchulmeisterandWheeler2004,Wheeler2007, Wheeler2012, WheelerandWhiteley2015}).  POY4 and POY5 contained the `custom alphabet' sequence type from which the FASTC format described here is derived.
+Situations arise where multi-character sequence elements are required or at least convenient.  These can include gene synteny, developmental, and comparative linguistic data (explained further in \citealp{SchulmeisterandWheeler2004,Wheeler2007, Wheeler2012, WheelerandWhiteley2015}).  POY4 and POY5 containe the `custom alphabet' sequence type from which the FASTC format described here is derived.
 
-The custoM alphabet file format allows for multi-character element representations (e.g. alpha, beta, gamma), but these must be prefix-free.  This allows sequence parsing to proceed more easily, but has the limitation that is requires a prefix-free alphabet and not all are.  Furthermore, it
+The custom alphabet file format allows for multi-character element representations (e.g. alpha, beta, gamma), but these must be prefix-free.  This allows sequence parsing to proceed more easily, but has the limitation that it requires a prefix-free alphabet and not all are.  Furthermore, it
 can lead to less that easily human-legible data files such as:\\
 \texttt{$>$First\_sequence}\\
 \texttt{alphabetagammadelta}\\
@@ -80,12 +80,12 @@ can lead to less that easily human-legible data files such as:\\
 The custom alphabet elements can also be preceded by a tilda (`$\sim$') denoting reverse orientation (useful for gene synteny data).
 
 \section{FASTC}
-The FASTC format grows out of the FASTA and custom alphabet formats by adding a two aspects: (1) mandatory white space between elements and (2) the '\$' used in sequence identifiers mark the remainder 
-of the line as a comment.
-
+The FASTC format grows out of the FASTA and custom alphabet formats by adding a mandatory white space between elements and allowing for non-prefix free multi-character 
+sequence element specification.
 \pagebreak
 
 \subsection{Grammar specification}
+The file grammar is specified below.
 
 \AtBeginEnvironment{grammar}{\small}
 \setlength{\grammarparsep}{12pt plus 1pt minus 1pt} % increase separation between rules
@@ -140,6 +140,73 @@ Multiple identifier lines without sequence data:\\
 are not permitted.
 
 \subsection{Example files}
+Traditional sequence files can be represented in fastc with the inclusion of separating spaces (from \citealp{Wheeler1998c}).
+\singlespace
+\begin{verbatim}
+>Americhernus      
+T C G A G C C T C C A A T G A T A C G T T G A A A G G C G T T T A T C G T T 
+G G G G C C G A C A G - - C G T C G T G G G C T C G G T T G G C C T T A 
+A A A A G C T G A T C G G G T T C T C C G G C A A T T T T A C T T T G A A A A
+  A A T T A G G G T G C T C A A G T G C C 
+>Chanbria;From Genbank
+T C T A G A C T G G T G G T C C G C C T C T G G T G G T T A C T A C C T G 
+G C C T A A A C A A T T T G C C G G T T T T C C C T T G G T G C T C T T C A 
+C C G A G T G T C T T G G G G G A C T G G T A C G T T T A C T T T G A A G A 
+A A C T A G A G T G C T C A A A - C A G G C G T A A C
+G C C 
+>Gea
+ T C C G G C C G G A C G G G T C C G C C T A C C G G T G G T 
+T A C T G T T C G C T G C C G A G C T T C A G G G G G C C G C T G T C G 
+ A T G A T C T T C A T C G G T T A T C T T C C G T A A C C C T C A C 
+G T T T A C T T T G A A A A A A T T A G A G T G C T C A A A G C A G C - -
+G C G A C G C C 
+>Hypochilus;An interesting spider
+- T C C A G A C G G G C G G T C C G C C T A A C G G T G G T T A C T G C C T 
+G G C C T G A A C A A C C A G C C G G T T T C C C T A G A T G A T 
+C T T C A T T G A T T G T C T T G G G T G A C C G G C A C G T T T A C T T
+T G A A A A A A T T A G A G T G C T C A A A G C A G C G T G A C G C C 
+ \end{verbatim}
+ \doublespace
+Linguistic data based on the international phonetic alphabet (IPA) may contain multi-character sequence elements
+(from \citealp{Whiteleyetal2019}).
+\singlespace
+\begin{verbatim}
+>Ngombe
+\ve b \'O
+>Mbesa
+\'{\i} f \'{\i} n j \`{\i}
+>Likile
+b o s \'a m b \'a
+>Mongo
+l O w \'O
+\end{verbatim}
+
+Gene synteny data can also be represented.
+\begin{verbatim}
+>species_1
+CYTB NAD1 12SrDNA 16SrDNA
+>species_2
+CYTB 12SrDNA 16SrDNA
+>species_3
+16SrDNA 12SrDNA NAD1 CYTB
+\end{verbatim}
+
+The following file would be invalid due to absence of data for Mbesa.
+
+\begin{verbatim}
+>Ngombe
+e b \'O
+>Mbesa
+>Likile
+b o s \'a m b \'a
+>Mongo
+l O w \'O
+\end{verbatim}
+\doublespace
+\section{Summary}
+The fastc format naturally generalizes existing sequence format files and can be employed to
+represent a diversity of
+data types with linear ordering.
 
 \section{Acknowledgements}
 \newpage
