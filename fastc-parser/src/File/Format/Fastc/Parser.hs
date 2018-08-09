@@ -110,18 +110,10 @@ comment :: (MonadParsec e s m, Token s ~ Char) => m String
 comment = do
     _ <- char ';'
     c <- some inlineChar
-    _ <- char '\n'
-{-    
-    -- Don't require a newline character if we are at the end of the file
-    _ <- try $ do notFollowedBy eof
-                  char '\n'
--}
-{-                  
     v <- optional $ lookAhead eof
     _ <- case v of
            Nothing -> void $ char '\n'
            Just _  -> pure ()
--}
     pure c
 
 
@@ -131,7 +123,7 @@ sequence :: (MonadParsec e s m, Token s ~ Char) => m CharacterSequence
 sequence = do
     _  <- maybespace
     e  <- element
-    es <- many (whitespace *> element)
+    es <- many $ try (whitespace *> element)
     _  <- maybespace
     pure . V.fromList $ e:es
 
