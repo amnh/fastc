@@ -152,7 +152,7 @@ symbol = some validChar
 -- |
 -- A list of symbols, possibly empty
 symbolList :: (MonadParsec e s m, Token s ~ Char) => m [String]
-symbolList = many (whitespace *> symbol)
+symbolList = many $ try (whitespace *> symbol)
 
   
 -- |
