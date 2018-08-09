@@ -93,32 +93,32 @@ The file grammar is specified as follows:
 
 \begin{grammar}
 
-  <FILE>         ::=  <WHITESPACE> $\,\,\Big($ `>' <IDENTIFIER> <ID_END> <SEQUENCE> $\Big)^{\Asterisk}$
+  <FILE>         ::=  <SPACEMAYBE> $\,\,\Big($ `>' <IDENTIFIER> <ID_END> <SEQUENCE> $\Big)^{\Asterisk}$
 
   <IDENTIFIER>   ::=  <SPACE_PAD> $\Big($ <VALID_CHAR> $\Big)^{+}$ <SPACE_PAD>
 
-  <ID_END>       ::=  `\\n' <WHITESPACE>
-                 \alt <COMMENT> <WHITESPACE>
+  <ID_END>       ::=  `\\n' <SPACEMAYBE>
+                 \alt <COMMENT> <SPACEMAYBE>
 
   <COMMENT>      ::=  `;' $\,\,\Big($ <INLINE_CHAR> $\Big)^{\Asterisk}$ `\\n'
 
   <SEQUENCE>     ::=  $\Big($ <ELEMENT> <WHITESPACE> $\Big)^{+}$
   
   <ELEMENT>      ::=  <SYMBOL>
-                 \alt `[' <SPACE_PAD> <SYMBOL> <SYMBOL_LIST> <SPACE_PAD> `]'
+                 \alt `[' <MAYBESPACE> <SYMBOL> <SYMBOL_LIST> <MAYBESPACE> `]'
  
   <SYMBOL>       ::=  $\Big($ <VALID_CHAR> $\Big)^{+}$
                  
-  <SYMBOL_LIST>  ::=  $\Big($ <SPACE_SEP> <SYMBOL> $\Big)^{\Asterisk}$
+  <SYMBOL_LIST>  ::=  $\Big($ <WHITESPACE> <SYMBOL> $\Big)^{\Asterisk}$
   
-  <WHITESPACE>   ::=  $\Big($ <SPACING> $\Big)^{\Asterisk}$
+  <MAYBESPACE>   ::=  $\Big($ <SPACING> $\Big)^{\Asterisk}$
+
+  <WHITESPACE>   ::=  $\Big($ <SPACING>  $\Big)^{+}$
 
   <SPACING>      ::=  \verb![\s]!$^{+}$  $\quad\,\quad\quad\quad \lhd \,\, \textbf{one or more spaces}$
                  \alt <COMMENT>
 
   <SPACE_PAD>    ::=  $\Big($ <SPACE_CHAR> $\Big)^{\Asterisk}$
-
-  <SPACE_SEP>    ::=  $\Big($ <SPACE_CHAR> $\Big)^{+}$
 
   <SPACE_CHAR>   ::=  \verb![^\n\S]!     $\quad\,\quad\quad      \lhd \,\, \textbf{not a new-line or a non-space}$
 
@@ -217,4 +217,5 @@ This work was supported by DARPA SIMPLEX (``Integrating Linguistic, Ethnographic
 
 
 
+\grid
 \grid
