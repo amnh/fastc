@@ -1,0 +1,6 @@
+>species_1
+CYTB NAD1 12SrDNA 16SrDNA
+>species_2
+CYTB 12SrDNA 16SrDNA
+>species_3
+16SrDNA 12SrDNA NAD1 CYTB
