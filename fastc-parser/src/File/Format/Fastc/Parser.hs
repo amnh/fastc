@@ -82,7 +82,7 @@ fastcStreamParser = file <* eof
 -- |
 -- The full FASTC file grammar
 file :: (MonadParsec e s m, Token s ~ Char) => m (NonEmpty FastcSequence)
-file = whitespace *> some1 identifierLine
+file = maybespace *> some1 identifierLine
   where
     identifierLine = do
         _ <- char '>'
@@ -101,7 +101,7 @@ identifier = spacePad *> some validChar <* spacePad
 -- |
 -- The way in which an identifier line can be terminated
 idEnd :: (MonadParsec e s m, Token s ~ Char) => m ()
-idEnd = char '\n' *> whitespace <|> comment *> whitespace
+idEnd = char '\n' *> maybespace <|> comment *> maybespace
 
 
 -- |
@@ -127,10 +127,10 @@ element = (pure <$> symbol) <|> ambiguitygroup
   where
     ambiguitygroup = do
         _  <- char '['
-        _  <- spacePad
+        _  <- maybespace
         x  <- symbol
         xs <- symbolList
-        _  <- spacePad
+        _  <- maybespace
         _  <- char ']'
         pure (x:|xs)
 
@@ -144,13 +144,20 @@ symbol = some validChar
 -- |
 -- A list of symbols, possibly empty
 symbolList :: (MonadParsec e s m, Token s ~ Char) => m [String]
-symbolList = many (spaceSep *> symbol)
+symbolList = many (whitespace *> symbol)
 
   
 -- |
 -- Defines whitespace to be consumed and discarded
+maybespace :: (MonadParsec e s m, Token s ~ Char) => m ()
+maybespace = void (many spacing)
+
+
+-- |
+-- Defines whitespace to be consumed and discarded
 whitespace :: (MonadParsec e s m, Token s ~ Char) => m ()
-whitespace = void (many spacing)
+whitespace = void (some1 spacing)
+
 
 -- |
 -- Defines a fragment of whitespace to be consumed and discarded
@@ -162,12 +169,6 @@ spacing = (void . some1 . satisfy) isSpace <|> void comment
 -- Defines if a 'Char' is a space but not a newline
 spacePad :: (MonadParsec e s m, Token s ~ Char) => m String
 spacePad = many spaceChar
-
-
--- |
--- Defines if a 'Char' is a space but not a newline
-spaceSep :: (MonadParsec e s m, Token s ~ Char) => m (NonEmpty Char)
-spaceSep = some1 spaceChar
 
 
 -- |
