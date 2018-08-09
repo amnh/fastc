@@ -116,23 +116,19 @@ executable fastc
 --                    File.Format.Fastc.Test
 
 
---Executable file-tests
+Executable file-tests
 
---  main-is:          FileTests.hs
+  main-is:          FileTests.hs
 
---  build-depends:    base               >=4.8
---                  -- >=0.5.8 Required for Data.Map.restrictKeys
---                  , containers         >=0.5.8
---                  , directory
---                  , fastc-parser
---                  , megaparsec         >=6.0.0
---                  , tasty
---                  , tasty-hunit
+  build-depends:    base               >=4.8
+                  -- >=0.5.8 Required for Data.Map.restrictKeys
+                  , containers         >=0.5.8
+                  , directory
+                  , fastc-parser
+                  , megaparsec         >=6.0.0
+                  , tasty
+                  , tasty-hunit
 
---  hs-source-dirs:   test
+  hs-source-dirs:   test
 
---  ghc-options:      -threaded
-
---  other-modules:    Test.Custom.Parse
---                    TestSuite.GeneratedTests
---                    TestSuite.GeneratedTests.Fastc
+  ghc-options:      -threaded

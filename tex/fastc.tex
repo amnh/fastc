@@ -102,7 +102,7 @@ The file grammar is specified as follows:
 
   <COMMENT>      ::=  `;' $\,\,\Big($ <INLINE_CHAR> $\Big)^{\Asterisk}$ `\\n'
 
-  <SEQUENCE>     ::=  $\Big($ <ELEMENT> <WHITESPACE> $\Big)^{+}$
+  <SEQUENCE>     ::=  <ELEMENT> $\Big($ <WHITESPACE> <ELEMENT> $\Big)^{\Asterisk}$ <MAYBESPACE>
   
   <ELEMENT>      ::=  <SYMBOL>
                  \alt `[' <MAYBESPACE> <SYMBOL> <SYMBOL_LIST> <MAYBESPACE> `]'
