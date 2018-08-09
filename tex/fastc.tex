@@ -88,37 +88,37 @@ sequence element specification.
 The file grammar is specified as follows:
 
 \AtBeginEnvironment{grammar}{\small}
-%\setlength{\grammarparsep}{10pt plus 1pt minus 1pt} % increase separation between rules
+\setlength{\grammarparsep}{12pt plus 1pt minus 1pt} % increase separation between rules
 \setlength{\grammarindent}{10em} % increase separation between LHS/RHS
 
 \begin{grammar}
 
-  <FILE>         ::=  <SPACEMAYBE> $\,\,\Big($ `>' <IDENTIFIER> <ID_END> <SEQUENCE> $\Big)^{\Asterisk}$
+  <FILE>         ::=  <WHITESPACE> $\,\,\Big($ `>' <IDENTIFIER> <ID_END> <SEQUENCE> $\Big)^{\Asterisk}$
 
   <IDENTIFIER>   ::=  <SPACE_PAD> $\Big($ <VALID_CHAR> $\Big)^{+}$ <SPACE_PAD>
 
-  <ID_END>       ::=  `\\n' <SPACEMAYBE>
-                 \alt <COMMENT> <SPACEMAYBE>
+  <ID_END>       ::=  `\\n' <WHITESPACE>
+                 \alt <COMMENT> <WHITESPACE>
 
   <COMMENT>      ::=  `;' $\,\,\Big($ <INLINE_CHAR> $\Big)^{\Asterisk}$ `\\n'
 
   <SEQUENCE>     ::=  $\Big($ <ELEMENT> <WHITESPACE> $\Big)^{+}$
   
   <ELEMENT>      ::=  <SYMBOL>
-                 \alt `[' <MAYBESPACE> <SYMBOL> <SYMBOL_LIST> <MAYBESPACE> `]'
+                 \alt `[' <SPACE_PAD> <SYMBOL> <SYMBOL_LIST> <SPACE_PAD> `]'
  
   <SYMBOL>       ::=  $\Big($ <VALID_CHAR> $\Big)^{+}$
                  
-  <SYMBOL_LIST>  ::=  $\Big($ <WHITESPACE> <SYMBOL> $\Big)^{\Asterisk}$
+  <SYMBOL_LIST>  ::=  $\Big($ <SPACE_SEP> <SYMBOL> $\Big)^{\Asterisk}$
   
-  <MAYBESPACE>   ::=  $\Big($ <SPACING> $\Big)^{\Asterisk}$
-
-  <WHITESPACE>   ::=  $\Big($ <SPACES>  $\Big)^{+}$
+  <WHITESPACE>   ::=  $\Big($ <SPACING> $\Big)^{\Asterisk}$
 
   <SPACING>      ::=  \verb![\s]!$^{+}$  $\quad\,\quad\quad\quad \lhd \,\, \textbf{one or more spaces}$
                  \alt <COMMENT>
 
   <SPACE_PAD>    ::=  $\Big($ <SPACE_CHAR> $\Big)^{\Asterisk}$
+
+  <SPACE_SEP>    ::=  $\Big($ <SPACE_CHAR> $\Big)^{+}$
 
   <SPACE_CHAR>   ::=  \verb![^\n\S]!     $\quad\,\quad\quad      \lhd \,\, \textbf{not a new-line or a non-space}$
 
@@ -209,8 +209,9 @@ represent a diversity of
 data types with linear ordering.
 
 \section{Acknowledgements}
+This work was supported by DARPA SIMPLEX (``Integrating Linguistic, Ethnographic, and Genetic Information of Human Populations: Databases and Tools,'' DARPA-BAA-14-59 SIMPLEX TA-2, 2015-2018). 
 \newpage
-\bibliography{../big-refs-3}
+\bibliography{big-refs-3}
 \end{document}
 
 
