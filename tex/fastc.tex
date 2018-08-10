@@ -94,12 +94,12 @@ The file grammar is specified as follows:
 
 \begin{grammar}
 
-  <FILE>         ::=  <SPACEMAYBE> $\,\,\Big($ `>' <IDENTIFIER> <ID_END> <SEQUENCE> $\Big)^{\Asterisk}$
+  <FILE>         ::=  <MAYBESPACE> $\,\,\Big($ `>' <IDENTIFIER> <ID_END> <SEQUENCE> $\Big)^{\Asterisk}$
 
   <IDENTIFIER>   ::=  <SPACE_PAD> $\Big($ <VALID_CHAR> $\Big)^{+}$ <SPACE_PAD>
 
-  <ID_END>       ::=  `\\n' <SPACEMAYBE>
-                 \alt <COMMENT> <SPACEMAYBE>
+  <ID_END>       ::=  `\\n' <MAYBESPACE>
+                 \alt <COMMENT> <MAYBESPACE>
 
   <COMMENT>      ::=  `;' $\,\,\Big($ <INLINE_CHAR> $\Big)^{\Asterisk}$ `\\n'
 
