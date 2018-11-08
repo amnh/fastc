@@ -70,23 +70,29 @@ This would result in the input of two sequences: First\_DNA  ACGTTTGGA and Secon
 POY4 \citep {POY4} and POY5 \citep {POY5, Wheeleretal2015} extended the legal character symbol set to include `-' to represent alignment gaps (an IUPAC symbol for nucleotides but not protein sequences), `X' to represent any nucleotide (in addition to `N' for nucleotides), and `?' to represent `X' or `-' (unknown element or gap).  
 
 \subsection{Multi-character alphabets}
-Situations arise where multi-character sequence elements are required or at least convenient.  These can include gene synteny, developmental, and comparative linguistic data (explained further in \citealp{SchulmeisterandWheeler2004,Wheeler2007, Wheeler2012, WheelerandWhiteley2015}).  POY4 and POY5 contain the `custom alphabet' sequence type from which the FASTC format described here is derived.
+Situations arise where multi-character sequence elements are required or at least convenient.  These can include gene synteny, developmental, and comparative linguistic data (explained further in \citealp{SchulmeisterandWheeler2004,Wheeler2007, Wheeler2012, WheelerandWhiteley2015}).  POY4 and POY5 contain the `custom alphabet' sequence type from which the FASTC format described here is derived. The `C' is appended to the file name to represent the custom alphabet type instead of the implicit DNA or protein sequences in FASTA file format.
 
 The custom alphabet file format allows for multi-character element representations (e.g. alpha, beta, gamma), but these must be prefix-free.  This allows sequence parsing to proceed more easily, but has the limitation that it requires a prefix-free alphabet and not all are.  Furthermore, it
-can lead to less that easily human-legible data files such as:\\
+can lead to less than easily human-legible data files such as:\\
 \texttt{$>$First\_sequence}\\
 \texttt{alphabetagammadelta}\\
 \texttt{$>$Second\_sequence}\\
 \texttt{betagammaalphadelta}\\
 The custom alphabet elements can also be preceded by a tilda (`$\sim$') denoting reverse orientation (useful for gene synteny data).
 
+The FASTA file format has also been modified for use in genome assemblies. The FASTG format \url{fastg.sourceforge.net/FASTG_Spec_v1.00.pdf} was defined to allow the
+representation of alleleic polymorphism and assembly ambiguity.  FASTG and FASTC do not appear to be suffficiently compatible to merge the specifications at present.
+
 \section{FASTC}
 The FASTC format grows out of the FASTA and custom alphabet formats by adding a mandatory white space between elements and allowing for non-prefix free multi-character 
 sequence element specification.
+
+Add the english (plain text) description of the file format here.
+
 \pagebreak
 
 \subsection{Grammar specification}
-The file grammar is specified as follows:
+The file Backus normal form (BNF) CITE_THIS, context-free grammar is specified as follows:
 
 \AtBeginEnvironment{grammar}{\small}
 %\setlength{\grammarparsep}{12pt plus 1pt minus 1pt} % increase separation between rules
@@ -131,13 +137,16 @@ The file grammar is specified as follows:
   
 \end{grammar}
 
-It is worth noting that parentheses, '(' and '), \textit{are allowed} in an identifier but may cause conflict with with E/Newick tree file format \citep{Cardonaetal2008} containing the same identifier that has not been properly quoted. \\
+It is worth noting that parentheses, `(' and `)', \textit{are allowed} in an identifier but may cause conflict with with E/Newick tree file format \citep{Cardonaetal2008} containing the same identifier that has not been properly quoted. \\
 
 Multiple identifier lines without sequence data  are not permitted:\\
 \texttt{	
 >foo\\
 >bar\\
 }
+
+This would imply that there are missing data for these terminals. However there are alternative, higher-level techniques for infering missing data and it is outside the scope of this file format. This behavior has been inherited from the FASTA format.
+
 
 \subsection{Example implementation}
 
