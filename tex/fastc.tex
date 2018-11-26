@@ -85,10 +85,10 @@ representation of alleleic polymorphism and assembly ambiguity.  FASTG and FASTC
 \section{FASTC}
 The FASTC format grows out of the FASTA and custom alphabet formats by adding a mandatory white space between elements and allowing for non-prefix free multi-character sequence element specification. 
 
-A sequence specification in FASTC format begins with a single-line identifier, followed by one or more lines of sequence data. Multiple identifier lines and accompanying lines of sequence data maybe included in a FASTC file. A FASTC file must have at least one sequence specified, empty files are not valid.
+A sequence specification in FASTC format begins with a single-line identifier, followed by one or more lines of sequence data. Multiple identifier lines and accompanying lines of sequence data may be included in a FASTC file. A FASTC file must have at least one sequence specified; empty files are not valid.
 
 The identifier line is distinguished from lines of sequence data by a greater-than `$>$' symbol at the beginning of the line.
-The characters following the `$>$' symbol on the line, is the identifier of the sequence.
+The characters following the `$>$' symbol on the line, constitute the identifier of the sequence.
 The identifier of the sequence cannot include whitespace or any of the following characters: `;', `$>$', `[', `]'.
 An identifier may end early on the identifier line when a `;' symbol is encountered. On any line that a `;' symbol is encountered, everything after on the line is considered a comment.
 
